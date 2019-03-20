@@ -1,7 +1,7 @@
 Package: SEF
 Type: Package
 Title: Tools to handle the C3S Station Exchange Format
-Version: 0.2.1
+Version: 0.2.0
 Author: Yuri Brugnara
 Maintainer: Yuri Brugnara <yuri.brugnara@giub.unibe.ch>
 Description: Functions for writing and reading SEF files.

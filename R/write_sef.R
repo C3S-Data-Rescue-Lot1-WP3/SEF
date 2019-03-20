@@ -65,7 +65,7 @@ write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
   
   ## Build header
   header <- array(dim = c(12, 2), data = "")
-  header[1, ] <- c("SEF", "0.2.0")
+  header[1, ] <- c("SEF", packageVersion("SEF"))
   header[2, ] <- c("ID", as.character(cod))
   header[3, ] <- c("Name", as.character(nam))
   header[4, ] <- c("Lat", as.character(lat))

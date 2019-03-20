@@ -73,8 +73,9 @@ read_meta <- function(file = file.choose(), parameter = NA) {
   
   ## Check format
   if (header[1,1] != "SEF") stop("This is not a SEF file")
-  if (header[1,2] != "0.2.0") stop(paste("This function is not compatible with
-                                         SEF version", v))
+  if (header[1,2] != packageVersion("SEF")) {
+    stop(paste("This function is not compatible with SEF version", header[1,2]))
+  }
   
   ## Extract metadata
   if (is.na(parameter)) {
