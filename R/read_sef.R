@@ -1,40 +1,45 @@
-#' Read data files in Station Exchange Format version 0.2.1
+#' Read data files in Station Exchange Format version 0.2.0
 #'
 #' @param file Character string giving the path of the SEF file.
+#' @param all If FALSE (the default), omit the columns 'Period' and 'Meta' 
+#' (also 'Hour' and 'Minute' for non-instantaneous data)
 #'
-#' @return A data frame with seven or eigth variables (depending on time
-#' resolution): variable code, year, month, day, (time), value,
-#' time flag, metadata.
+#' @return A data frame with up to 9 variables, depending on whether 
+#' \code{all} is set to TRUE. 
+#' The variables are: variable code, year, month, day, hour, minute,
+#' value, period, metadata.
 #'
 #' @author Yuri Brugnara
 #'
 #' @import utils
 #' @export
 
-read_sef <- function(file = file.choose()) {
+read_sef <- function(file = file.choose(), all = FALSE) {
+  
+  ## Read from the header
+  meta <- read_meta(file)
+  varcode <- meta["var"]
+  timeres <- meta["stat"]
+  v <- meta["version"]
 
-  header <- read.table(file = file, quote = "", comment.char = "", sep = "\t",
-                       nrows = 10, stringsAsFactors = FALSE, fill = TRUE)
-  varcode <- header[9, 2]
-
-  Data <- read.table(file = file, skip = 11, header = TRUE, fill = TRUE,
+  ## Read the data
+  Data <- read.table(file = file, skip = 12, header = TRUE, fill = TRUE,
                      sep = "\t", stringsAsFactors = FALSE)
-  times <- unique(Data$TimeF)
-  if (length(times) > 1 & 0 %in% times) {
-    warning("Cannot convert more than one time resolution")
-    Data <- Data[which(Data$TimeF == times[1]), ]
-  }
-  times <- times[1]
-  if (times %in% 0) {
-    Data <- Data[, c(1:4,6,5,7)]
-    colnames(Data) <- c("Year", "Month", "Day", "Time", "Obs", "TimeF", "Meta")
-    Data$Time <- formatC(as.integer(Data$Time), width = 4, flag = "0")
+
+  ## Select columns
+  if (!all) {
+    if (timeres == "point") {
+      Data <- Data[, c(1:5,7)]
+      colnames(Data) <- c("Year", "Month", "Day", "Hour", "Minute", "Value")
+    } else {
+      Data <- Data[, c(1:3,7)]
+      colnames(Data) <- c("Year", "Month", "Day", "Value")
+    }
   } else {
-    Data <- Data[, c(1:3,6,5,7)]
-    colnames(Data) <- c("Year", "Month", "Day", "Obs", "TimeF", "Meta")
+    Data$Meta[which(is.na(Data$Meta))] <- ""
   }
 
-  Data <- cbind(varcode, Data)
+  Data <- cbind(rep(varcode, dim(Data)[1]), Data)
   colnames(Data)[1] <- "Var"
 
   return(Data)
@@ -42,14 +47,14 @@ read_sef <- function(file = file.choose()) {
 }
 
 
-#' Read metadata from the Station Exchange Format version 0.2.1
+#' Read metadata from the Station Exchange Format version 0.2.0
 #'
 #' @param file Character string giving the path of the data file.
 #' @param parameter Character vector of required parameters. Accepted
 #' values are \code{"version"}, \code{"id"}, \code{"name"}, \code{"lat"},
 #' \code{"lon"}, \code{"alt"}, \code{"source"}, \code{"repo"},
-#' \code{"var"}, \code{"units"}, \code{"meta"}. By default all parameters
-#' are read at once.
+#' \code{"var"}, \code{"stat"}, \code{"units"}, \code{"meta"}. 
+#' By default all parameters are read at once.
 #'
 #' @return A character vector with the required parameters.
 #'
@@ -60,10 +65,18 @@ read_sef <- function(file = file.choose()) {
 
 read_meta <- function(file = file.choose(), parameter = NA) {
 
+  ## Read header
   header <- read.table(file = file, quote = "", comment.char = "", sep = "\t",
-                       nrows = 11, stringsAsFactors = FALSE, fill = TRUE)
-  pars <-c("version", "id", "name", "lat", "lon", "alt", "source", "repo",
-           "var", "units", "meta")
+                       nrows = 12, stringsAsFactors = FALSE, fill = TRUE)
+  pars <-c("version", "id", "name", "lat", "lon", "alt", "source", "link",
+           "var", "stat", "units", "meta")
+  
+  ## Check format
+  if (header[1,1] != "SEF") stop("This is not a SEF file")
+  if (header[1,2] != "0.2.0") stop(paste("This function is not compatible with
+                                         SEF version", v))
+  
+  ## Extract metadata
   if (is.na(parameter)) {
     out <- header[, 2]
     names(out) <- pars
