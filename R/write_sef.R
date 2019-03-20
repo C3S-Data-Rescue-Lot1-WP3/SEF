@@ -34,7 +34,7 @@
 #' @export
 
 write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "", 
-                      lon = "", alt = "", sou = "", repo = "", units, 
+                      lon = "", alt = "", sou = "", link = "", units, 
                       stat, metaHead = "", meta = "", period = "", 
                       note = "") {
   
@@ -72,7 +72,7 @@ write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
   header[5, ] <- c("Lon", as.character(lon))
   header[6, ] <- c("Alt", as.character(alt))
   header[7, ] <- c("Source", as.character(sou))
-  header[8, ] <- c("Repo", as.character(repo))
+  header[8, ] <- c("Link", as.character(link))
   header[9, ] <- c("Vbl", as.character(variable))
   header[10, ] <- c("Stat", as.character(stat))
   header[11, ] <- c("Units", as.character(units))
