@@ -39,7 +39,7 @@ read_sef <- function(file = file.choose(), all = FALSE) {
     Data$Meta[which(is.na(Data$Meta))] <- ""
   }
 
-  Data <- cbind(rep(varcode, dim(Data)[1]), Data)
+  Data <- cbind(rep(varcode, dim(Data)[1]), Data, stringsAsFactors = FALSE)
   colnames(Data)[1] <- "Var"
 
   return(Data)
