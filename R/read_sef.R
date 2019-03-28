@@ -1,11 +1,11 @@
 #' Read data files in Station Exchange Format version 0.2.0
 #'
 #' @param file Character string giving the path of the SEF file.
-#' @param all If FALSE (the default), omit the columns 'Period' and 'Meta' 
+#' @param all If FALSE (the default), omit the columns 'Period' and 'Meta'
 #' (also 'Hour' and 'Minute' for non-instantaneous data)
 #'
-#' @return A data frame with up to 9 variables, depending on whether 
-#' \code{all} is set to TRUE. 
+#' @return A data frame with up to 9 variables, depending on whether
+#' \code{all} is set to TRUE.
 #' The variables are: variable code, year, month, day, hour, minute,
 #' value, period, metadata.
 #'
@@ -15,7 +15,7 @@
 #' @export
 
 read_sef <- function(file = file.choose(), all = FALSE) {
-  
+
   ## Read from the header
   meta <- read_meta(file)
   varcode <- meta["var"]
@@ -53,7 +53,7 @@ read_sef <- function(file = file.choose(), all = FALSE) {
 #' @param parameter Character vector of required parameters. Accepted
 #' values are \code{"version"}, \code{"id"}, \code{"name"}, \code{"lat"},
 #' \code{"lon"}, \code{"alt"}, \code{"source"}, \code{"repo"},
-#' \code{"var"}, \code{"stat"}, \code{"units"}, \code{"meta"}. 
+#' \code{"var"}, \code{"stat"}, \code{"units"}, \code{"meta"}.
 #' By default all parameters are read at once.
 #'
 #' @return A character vector with the required parameters.
@@ -63,22 +63,22 @@ read_sef <- function(file = file.choose(), all = FALSE) {
 #' @import utils
 #' @export
 
-read_meta <- function(file = file.choose(), parameter = NA) {
+read_meta <- function(file = file.choose(), parameter = NULL) {
 
   ## Read header
   header <- read.table(file = file, quote = "", comment.char = "", sep = "\t",
                        nrows = 12, stringsAsFactors = FALSE, fill = TRUE)
   pars <-c("version", "id", "name", "lat", "lon", "alt", "source", "link",
            "var", "stat", "units", "meta")
-  
+
   ## Check format
   if (header[1,1] != "SEF") stop("This is not a SEF file")
   if (header[1,2] != packageVersion("SEF")) {
     stop(paste("This function is not compatible with SEF version", header[1,2]))
   }
-  
+
   ## Extract metadata
-  if (is.na(parameter)) {
+  if (is.null(parameter)) {
     out <- header[, 2]
     names(out) <- pars
   } else {
