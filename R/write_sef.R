@@ -1,10 +1,11 @@
 #' Write data in Station Exchange Format version 0.2.0
 #'
-#' @param Data A data frame with 7 variables in this order: variable code, 
+#' @param Data A data frame with 7 variables in this order: variable code,
 #' year, month, day, hour, minute, value.
-#' @param outpath Character string giving the output path (note that the 
-#' filename is generated from the source identifier, station code, start 
-#' and end dates, and variable code).
+#' @param outpath Character string giving the output path (note that the
+#' filename is generated from the source identifier, station code, start
+#' and end dates, and variable code). By default this is the working
+#' directory.
 #' @param cod Station code. This is a required field.
 #' @param nam Station name.
 #' @param lat Station latitude (degrees North in decimal).
@@ -16,37 +17,52 @@
 #' @param stat Character string giving the statistic code. This is a required
 #' field.
 #' @param units Character string giving the units. This is a required field.
-#' @param metaHead Character string giving metadata entries for the header 
+#' @param metaHead Character string giving metadata entries for the header
 #' (pipe separated).
 #' @param meta Character vector with length equal to the number of rows
 #' of \code{Data}, giving metadata entries for the single observations (pipe
 #' separated).
-#' @param period Observation time period code. Must be a character vector with 
-#' length equal to the number of rows of \code{Data} unless all observations 
+#' @param period Observation time period code. Must be a character vector with
+#' length equal to the number of rows of \code{Data} unless all observations
 #' have the same period code.
+#' @param time_offset Numerical vector of offsets from UTC in hours.
+#' This value will be subtracted from the observation times to obtain UTC times,
+#' so for instance the offset of Central European Time is +1 hour.
+#' Recycled for all observations if only one value is given.
 #' @param note Character string to be added to the end of the filename.
 #' It will be separated from the rest of the name by an underscore.
 #' Blanks will be also replaced by underscores.
 #'
+#' @note
+#' Times in SEF files must be expressed in UTC.
+#'
 #' @author Yuri Brugnara
+#'
+#' @examples
+#' # Create a basic SEF file for air temperature in Bern
+#' # (assuming the observation times are in local solar time)
+#' # The file will be written in the working directory
+#' write_sef(Bern$ta, cod = Meta$ta$id, lat = Meta$ta$lat, lon = Meta$ta$lon,
+#' alt = Meta$ta$alt, units = Meta$ta$units, stat = "point", period = "0",
+#' time_offset = Meta$ta$lon * 24 / 360)
 #'
 #' @import utils
 #' @export
 
-write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "", 
-                      lon = "", alt = "", sou = "", link = "", units, 
-                      stat, metaHead = "", meta = "", period = "", 
-                      note = "") {
-  
+write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
+                      lon = "", alt = "", sou = "", link = "", units,
+                      stat, metaHead = "", meta = "", period = "",
+                      time_offset = 0, note = "") {
+
   ## Check that only one variable is given
   variable <- unique(as.character(Data[, 1]))
   if (NA %in% variable) stop("Variable column cannot contain NAs")
-  if (length(variable) > 1) {   
+  if (length(variable) > 1) {
     warning("Only one variable can be read. Reading first variable only...")
     variable <- variable[1]
     Data <- subset(Data, Data[, 1] == variable)
   }
-   
+
   ## Build filename
   datemin <- paste(formatC(unlist(Data[1, 2:4]), width=2, flag=0),
                    collapse = "")
@@ -62,10 +78,10 @@ write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
     note <- paste0("_", gsub(" ", "_", note))
   }
   filename <- paste0(outpath, filename, note, ".tsv")
-  
+
   ## Build header
   header <- array(dim = c(12, 2), data = "")
-  header[1, ] <- c("SEF", packageVersion("SEF"))
+  header[1, ] <- c("SEF", "0.2.0")
   header[2, ] <- c("ID", as.character(cod))
   header[3, ] <- c("Name", as.character(nam))
   header[4, ] <- c("Lat", as.character(lat))
@@ -77,9 +93,23 @@ write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
   header[10, ] <- c("Stat", as.character(stat))
   header[11, ] <- c("Units", as.character(units))
   header[12, ] <- c("Meta", as.character(metaHead))
-  
-  # For instantaneous observations the period must be 0
-  if (stat == "point") period <- "0"
+
+  ## For instantaneous observations the period must be 0
+  if (stat == "point" & !all(as.character(period) == "0")) {
+    period <- "0"
+    warning("Period forced to 0 because of 'stat'")
+  }
+
+  ## Convert times to UTC
+  if (!all(time_offset == 0)) {
+    times <- ISOdatetime(Data[,2], Data[,3], Data[,4], Data[,5], Data[,6], 0, tz = "GMT")
+    times <- times - time_offset * 3600
+    Data[, 2] <- as.integer(substr(times,1,4))
+    Data[, 3] <- as.integer(substr(times,6,7))
+    Data[, 4] <- as.integer(substr(times,9,10))
+    Data[, 5] <- as.integer(substr(times,12,13))
+    Data[, 6] <- as.integer(substr(times,15,16))
+  }
 
   ## Build data frame with SEF structure
   DataNew <- data.frame(Year = as.integer(Data[, 2]),
@@ -91,24 +121,24 @@ write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
                         Value = as.character(Data[, 7]),
                         Meta = as.character(meta),
                         stringsAsFactors = FALSE)
-  
+
   ## Remove lines with missing data
   DataNew <- DataNew[which(!is.na(DataNew$Value)), ]
-  
+
   ## Write header to file
   write.table(header, file = filename, quote = FALSE, row.names = FALSE,
               col.names = FALSE, sep = "\t", dec = ".", fileEncoding = "UTF-8")
-  
+
   ## Write column names to file
   write.table(t(names(DataNew)), file = filename, quote = FALSE, row.names = FALSE,
               col.names = FALSE, sep = "\t", fileEncoding = "UTF-8",
               append = TRUE)
-  
+
   ## Write data to file
   write.table(DataNew, file = filename, quote = FALSE, row.names = FALSE,
               col.names = FALSE, sep = "\t", dec = ".", fileEncoding = "UTF-8",
               append = TRUE)
-  
+
   return(print(paste("Data written to file", filename), quote = FALSE))
 
 }
