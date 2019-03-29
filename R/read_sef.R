@@ -52,7 +52,7 @@ read_sef <- function(file = file.choose(), all = FALSE) {
 #' @param file Character string giving the path of the data file.
 #' @param parameter Character vector of required parameters. Accepted
 #' values are \code{"version"}, \code{"id"}, \code{"name"}, \code{"lat"},
-#' \code{"lon"}, \code{"alt"}, \code{"source"}, \code{"repo"},
+#' \code{"lon"}, \code{"alt"}, \code{"source"}, \code{"link"},
 #' \code{"var"}, \code{"stat"}, \code{"units"}, \code{"meta"}.
 #' By default all parameters are read at once.
 #'

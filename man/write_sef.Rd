@@ -2,21 +2,21 @@
 % Please edit documentation in R/write_sef.R
 \name{write_sef}
 \alias{write_sef}
-\title{Write data in Station Exchange Format version 0.2.1}
+\title{Write data in Station Exchange Format version 0.2.0}
 \usage{
-write_sef(Data, outpath, cod, nam, lat = NA, lon = NA, alt = NA,
-  sou = NA, repo = NA, units = NA, metaHead = "", meta = "",
-  timef = NA, note = "")
+write_sef(Data, outpath = getwd(), cod, nam = "", lat = "", lon = "",
+  alt = "", sou = "", link = "", units, stat, metaHead = "",
+  meta = "", period = "", note = "")
 }
 \arguments{
-\item{Data}{A data frame with five or six variables (depending on time
-resolution): variable code, year, month, day, (time in HHMM or HH:MM), value.}
+\item{Data}{A data frame with 7 variables in this order: variable code, 
+year, month, day, hour, minute, value.}
 
-\item{outpath}{Character string giving the output path (note that the filename
-is generated from the source identifier, station code, start and end dates,
-and variable code).}
+\item{outpath}{Character string giving the output path (note that the 
+filename is generated from the source identifier, station code, start 
+and end dates, and variable code).}
 
-\item{cod}{Station code.}
+\item{cod}{Station code. This is a required field.}
 
 \item{nam}{Station name.}
 
@@ -28,25 +28,31 @@ and variable code).}
 
 \item{sou}{Character string giving the source identifier.}
 
-\item{repo}{Character string giving the repository identifier.}
+\item{link}{Character string giving an url for metadata (e.g., link to the
+C3S Data Rescue registry).}
 
-\item{units}{Character string giving the units.}
+\item{units}{Character string giving the units. This is a required field.}
 
-\item{metaHead}{Character string giving any metadata for the header.}
+\item{stat}{Character string giving the statistic code. This is a required
+field.}
+
+\item{metaHead}{Character string giving metadata entries for the header 
+(pipe separated).}
 
 \item{meta}{Character vector with length equal to the number of rows
-of Data, giving any metadata for the single observations.}
+of \code{Data}, giving metadata entries for the single observations (pipe
+separated).}
 
-\item{timef}{Integer or integer vector giving the observation time period code.
-If NA (the default), it will be guessed from the dimension of Data and
-the variable code.}
+\item{period}{Observation time period code. Must be a character vector with 
+length equal to the number of rows of \code{Data} unless all observations 
+have the same period code.}
 
 \item{note}{Character string to be added to the end of the filename.
 It will be separated from the rest of the name by an underscore.
 Blanks will be also replaced by underscores.}
 }
 \description{
-Write data in Station Exchange Format version 0.2.1
+Write data in Station Exchange Format version 0.2.0
 }
 \author{
 Yuri Brugnara
