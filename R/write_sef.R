@@ -1,11 +1,12 @@
 #' Write data in Station Exchange Format version 0.2.0
 #'
-#' @param Data A data frame with 7 variables in this order: variable code,
+#' @param Data A data frame with 6 variables in this order:
 #' year, month, day, hour, minute, value.
 #' @param outpath Character string giving the output path (note that the
 #' filename is generated from the source identifier, station code, start
 #' and end dates, and variable code). By default this is the working
 #' directory.
+#' @param variable Variable code. This is a required field.
 #' @param cod Station code. This is a required field.
 #' @param nam Station name.
 #' @param lat Station latitude (degrees North in decimal).
@@ -42,31 +43,23 @@
 #' # Create a basic SEF file for air temperature in Bern
 #' # (assuming the observation times are in local solar time)
 #' # The file will be written in the working directory
-#' write_sef(Bern$ta, cod = Meta$ta$id, lat = Meta$ta$lat, lon = Meta$ta$lon,
-#' alt = Meta$ta$alt, units = Meta$ta$units, stat = "point", period = "0",
-#' time_offset = Meta$ta$lon * 24 / 360)
+#' meta_bern <- Meta$ta[which(Meta$ta$id == "Bern"), ]
+#' write_sef(Bern$ta[, 2:7], variable = "ta", cod = meta_bern$id, lat = meta_bern$lat,
+#'           lon = meta_bern$lon, alt = meta_bern$alt, units = meta_bern$units,
+#'           stat = "point", period = "0", time_offset = meta_bern$lon * 24 / 360)
 #'
 #' @import utils
 #' @export
 
-write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
+write_sef <- function(Data, outpath = getwd(), variable, cod, nam = "", lat = "",
                       lon = "", alt = "", sou = "", link = "", units,
                       stat, metaHead = "", meta = "", period = "",
                       time_offset = 0, note = "") {
 
-  ## Check that only one variable is given
-  variable <- unique(as.character(Data[, 1]))
-  if (NA %in% variable) stop("Variable column cannot contain NAs")
-  if (length(variable) > 1) {
-    warning("Only one variable can be read. Reading first variable only...")
-    variable <- variable[1]
-    Data <- subset(Data, Data[, 1] == variable)
-  }
-
   ## Build filename
-  datemin <- paste(formatC(unlist(Data[1, 2:4]), width=2, flag=0),
+  datemin <- paste(formatC(unlist(Data[1, 1:3]), width=2, flag=0),
                    collapse = "")
-  datemax <- paste(formatC(unlist(Data[dim(Data)[1], 2:4]), width=2, flag=0),
+  datemax <- paste(formatC(unlist(Data[dim(Data)[1], 1:3]), width=2, flag=0),
                    collapse = "")
   dates <- paste(datemin, datemax, sep = "-")
   filename <- paste(sou, cod, dates, variable, sep = "_")
@@ -82,17 +75,17 @@ write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
   ## Build header
   header <- array(dim = c(12, 2), data = "")
   header[1, ] <- c("SEF", "0.2.0")
-  header[2, ] <- c("ID", as.character(cod))
-  header[3, ] <- c("Name", as.character(nam))
-  header[4, ] <- c("Lat", as.character(lat))
-  header[5, ] <- c("Lon", as.character(lon))
-  header[6, ] <- c("Alt", as.character(alt))
-  header[7, ] <- c("Source", as.character(sou))
-  header[8, ] <- c("Link", as.character(link))
-  header[9, ] <- c("Vbl", as.character(variable))
-  header[10, ] <- c("Stat", as.character(stat))
-  header[11, ] <- c("Units", as.character(units))
-  header[12, ] <- c("Meta", as.character(metaHead))
+  header[2, ] <- c("ID", trimws(as.character(cod)))
+  header[3, ] <- c("Name", trimws(as.character(nam)))
+  header[4, ] <- c("Lat", trimws(as.character(lat)))
+  header[5, ] <- c("Lon", trimws(as.character(lon)))
+  header[6, ] <- c("Alt", trimws(as.character(alt)))
+  header[7, ] <- c("Source", trimws(as.character(sou)))
+  header[8, ] <- c("Link", trimws(as.character(link)))
+  header[9, ] <- c("Vbl", trimws(as.character(variable)))
+  header[10, ] <- c("Stat", trimws(as.character(stat)))
+  header[11, ] <- c("Units", trimws(as.character(units)))
+  header[12, ] <- c("Meta", trimws(as.character(metaHead)))
 
   ## For instantaneous observations the period must be 0
   if (stat == "point" & !all(as.character(period) == "0")) {
@@ -101,24 +94,24 @@ write_sef <- function(Data, outpath = getwd(), cod, nam = "", lat = "",
   }
 
   ## Convert times to UTC
-  if (!all(time_offset == 0)) {
-    times <- ISOdatetime(Data[,2], Data[,3], Data[,4], Data[,5], Data[,6], 0, tz = "GMT")
+  if (!all(time_offset == 0) & !all(is.na(as.integer(Data[,4])+as.integer(Data[,5])))) {
+    times <- ISOdate(Data[,1], Data[,2], Data[,3], Data[,4], Data[,5])
     times <- times - time_offset * 3600
-    Data[, 2] <- as.integer(substr(times,1,4))
-    Data[, 3] <- as.integer(substr(times,6,7))
-    Data[, 4] <- as.integer(substr(times,9,10))
-    Data[, 5] <- as.integer(substr(times,12,13))
-    Data[, 6] <- as.integer(substr(times,15,16))
+    Data[which(!is.na(times)), 1] <- as.integer(substr(times[which(!is.na(times))],1,4))
+    Data[which(!is.na(times)), 2] <- as.integer(substr(times[which(!is.na(times))],6,7))
+    Data[which(!is.na(times)), 3] <- as.integer(substr(times[which(!is.na(times))],9,10))
+    Data[which(!is.na(times)), 4] <- as.integer(substr(times[which(!is.na(times))],12,13))
+    Data[which(!is.na(times)), 5] <- as.integer(substr(times[which(!is.na(times))],15,16))
   }
 
   ## Build data frame with SEF structure
-  DataNew <- data.frame(Year = as.integer(Data[, 2]),
-                        Month = as.integer(Data[, 3]),
-                        Day = as.integer(Data[, 4]),
-                        Hour = as.integer(Data[, 5]),
-                        Minute = as.integer(Data[, 6]),
+  DataNew <- data.frame(Year = as.integer(Data[, 1]),
+                        Month = as.integer(Data[, 2]),
+                        Day = as.integer(Data[, 3]),
+                        Hour = Data[, 4],
+                        Minute = Data[, 5],
                         Period = as.character(period),
-                        Value = as.character(Data[, 7]),
+                        Value = as.character(Data[, 6]),
                         Meta = as.character(meta),
                         stringsAsFactors = FALSE)
 
