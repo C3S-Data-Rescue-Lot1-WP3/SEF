@@ -1,4 +1,4 @@
-#' Write data in Station Exchange Format version 0.2.0
+#' Write data in Station Exchange Format version 1.0.0
 #'
 #' @param Data A data frame with 6 variables in this order:
 #' year, month, day, hour, minute, value.
@@ -30,12 +30,18 @@
 #' This value will be subtracted from the observation times to obtain UTC times,
 #' so for instance the offset of Central European Time is +1 hour.
 #' Recycled for all observations if only one value is given.
-#' @param note Character string to be added to the end of the filename.
-#' It will be separated from the rest of the name by an underscore.
+#' @param note Character string to be added to the end of the standard output
+#' filename. It will be separated from the rest of the name by an underscore.
 #' Blanks will be also replaced by underscores.
+#' @param keep_na If FALSE (the default), lines where observations are NA are
+#' removed.
+#' @param outfile Output filename. If specified, ignores \code{note}.
 #'
 #' @note
 #' Times in SEF files must be expressed in UTC.
+#'
+#' If \code{outfile} is not specified, the output filename is generated
+#' automatically as \code{sou}_\code{cod}_startdate_enddate_\code{variable}.tsv
 #'
 #' @author Yuri Brugnara
 #'
@@ -54,27 +60,38 @@
 write_sef <- function(Data, outpath = getwd(), variable, cod, nam = "", lat = "",
                       lon = "", alt = "", sou = "", link = "", units,
                       stat, metaHead = "", meta = "", period = "",
-                      time_offset = 0, note = "") {
+                      time_offset = 0, note = "", keep_na = FALSE, outfile = NA) {
 
-  ## Build filename
-  datemin <- paste(formatC(unlist(Data[1, 1:3]), width=2, flag=0),
-                   collapse = "")
-  datemax <- paste(formatC(unlist(Data[dim(Data)[1], 1:3]), width=2, flag=0),
-                   collapse = "")
-  dates <- paste(datemin, datemax, sep = "-")
-  filename <- paste(sou, cod, dates, variable, sep = "_")
-  if (sou %in% c(NA,"")) filename <- sub("_", "", filename)
+    ## Build filename
   if (substr(outpath, nchar(outpath), nchar(outpath)) != "/") {
     outpath <- paste0(outpath, "/")
   }
-  if (note != "") {
-    note <- paste0("_", gsub(" ", "_", note))
+  if (is.na(outfile)) {
+    datemin <- paste(formatC(unlist(Data[1, 1:3]), width=2, flag=0),
+                     collapse = "")
+    datemax <- paste(formatC(unlist(Data[dim(Data)[1], 1:3]), width=2, flag=0),
+                     collapse = "")
+    if (substr(datemin,5,6) == "NA") datemin <- substr(datemin, 1, 4)
+    if (substr(datemax,5,6) == "NA") datemax <- substr(datemax, 1, 4)
+    if (substr(datemin,3,4) == "NA") datemin <- substr(datemin, 1, 2)
+    if (substr(datemax,3,4) == "NA") datemax <- substr(datemax, 1, 2)
+    dates <- paste(datemin, datemax, sep = "-")
+    filename <- paste(sou, cod, dates, variable, sep = "_")
+    if (sou %in% c(NA,"")) filename <- sub("_", "", filename)
+    if (note != "") {
+      note <- paste0("_", gsub(" ", "_", note))
+    }
+    filename <- paste0(outpath, filename, note, ".tsv")
+  } else {
+    filename <- paste0(outpath, outfile)
+    if (substr(filename, nchar(filename)-3, nchar(filename)) != ".tsv") {
+      filename <- paste0(filename, ".tsv")
+    }
   }
-  filename <- paste0(outpath, filename, note, ".tsv")
 
   ## Build header
   header <- array(dim = c(12, 2), data = "")
-  header[1, ] <- c("SEF", "0.2.0")
+  header[1, ] <- c("SEF", "1.0.0")
   header[2, ] <- c("ID", trimws(as.character(cod)))
   header[3, ] <- c("Name", trimws(as.character(nam)))
   header[4, ] <- c("Lat", trimws(as.character(lat)))
@@ -116,7 +133,7 @@ write_sef <- function(Data, outpath = getwd(), variable, cod, nam = "", lat = ""
                         stringsAsFactors = FALSE)
 
   ## Remove lines with missing data
-  DataNew <- DataNew[which(!is.na(DataNew$Value)), ]
+  if (!keep_na) DataNew <- DataNew[which(!is.na(DataNew$Value)), ]
 
   ## Write header to file
   write.table(header, file = filename, quote = FALSE, row.names = FALSE,

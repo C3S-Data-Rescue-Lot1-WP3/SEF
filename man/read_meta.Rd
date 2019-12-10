@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_sef.R
 \name{read_meta}
 \alias{read_meta}
-\title{Read metadata from the Station Exchange Format version 0.2.0}
+\title{Read metadata from the Station Exchange Format version 1.0.0}
 \usage{
 read_meta(file = file.choose(), parameter = NULL)
 }
@@ -19,7 +19,7 @@ By default all parameters are read at once.}
 A character vector with the required parameters.
 }
 \description{
-Read metadata from the Station Exchange Format version 0.2.0
+Read metadata from the Station Exchange Format version 1.0.0
 }
 \author{
 Yuri Brugnara

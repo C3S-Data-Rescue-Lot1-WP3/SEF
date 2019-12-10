@@ -2,11 +2,12 @@
 % Please edit documentation in R/write_sef.R
 \name{write_sef}
 \alias{write_sef}
-\title{Write data in Station Exchange Format version 0.2.0}
+\title{Write data in Station Exchange Format version 1.0.0}
 \usage{
 write_sef(Data, outpath = getwd(), variable, cod, nam = "", lat = "",
-  lon = "", alt = "", sou = "", link = "", units, stat, metaHead = "",
-  meta = "", period = "", time_offset = 0, note = "")
+  lon = "", alt = "", sou = "", link = "", units, stat,
+  metaHead = "", meta = "", period = "", time_offset = 0,
+  note = "", keep_na = FALSE, outfile = NA)
 }
 \arguments{
 \item{Data}{A data frame with 6 variables in this order:
@@ -55,15 +56,23 @@ This value will be subtracted from the observation times to obtain UTC times,
 so for instance the offset of Central European Time is +1 hour.
 Recycled for all observations if only one value is given.}
 
-\item{note}{Character string to be added to the end of the filename.
-It will be separated from the rest of the name by an underscore.
+\item{note}{Character string to be added to the end of the standard output
+filename. It will be separated from the rest of the name by an underscore.
 Blanks will be also replaced by underscores.}
+
+\item{keep_na}{If FALSE (the default), lines where observations are NA are
+removed.}
+
+\item{outfile}{Output filename. If specified, ignores \code{note}.}
 }
 \description{
-Write data in Station Exchange Format version 0.2.0
+Write data in Station Exchange Format version 1.0.0
 }
 \note{
 Times in SEF files must be expressed in UTC.
+
+If \code{outfile} is not specified, the output filename is generated
+automatically as \code{sou}_\code{cod}_startdate_enddate_\code{variable}.tsv
 }
 \examples{
 # Create a basic SEF file for air temperature in Bern

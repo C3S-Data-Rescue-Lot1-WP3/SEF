@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_sef.R
 \name{read_sef}
 \alias{read_sef}
-\title{Read data files in Station Exchange Format version 0.2.0}
+\title{Read data files in Station Exchange Format version 1.0.0}
 \usage{
 read_sef(file = file.choose(), all = FALSE)
 }
@@ -19,7 +19,7 @@ The variables are: variable code, year, month, day, hour, minute,
 value, period, metadata.
 }
 \description{
-Read data files in Station Exchange Format version 0.2.0
+Read data files in Station Exchange Format version 1.0.0
 }
 \author{
 Yuri Brugnara

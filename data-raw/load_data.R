@@ -1,5 +1,7 @@
 # Run in the package main directory to import example data and metadata,
 
+library(devtools)
+
 # Load and format Bern data from CHIMES project
 load("data-raw/Bern_Studer.RData")
 n <- dim(df)[1]
@@ -39,7 +41,9 @@ for (variable in c("ta","p")) {
                                  stringsAsFactors = FALSE)
 }
 
+# Create vector of variable names
+Variables <- read.table("data-raw/variables.txt", sep = "\t", stringsAsFactors = FALSE)
+names(Variables) <- c("abbr", "full_name")
+
 # Import using devtools
-setwd("../.")
-devtools::use_data(Bern, Meta, pkg = "SEF", overwrite = TRUE)
-setwd("SEF")
+use_data(Bern, Meta, Variables, overwrite = TRUE)
