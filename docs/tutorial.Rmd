@@ -112,7 +112,7 @@ sefdata$p <- data.frame(Year = rep(mydata$Year, each=3),
                          Day = rep(mydata$Day, each=3),
                          Value = c(t(mydata[,7:9])))
 
-# Create data frame for wind (under name 'w')
+# Create data frame for wind (under name 'dd')
 sefdata$dd <- data.frame(Year = rep(mydata$Year, each=3),
                          Month = rep(mydata$Month, each=3),
                          Day = rep(mydata$Day, each=3),
@@ -174,7 +174,7 @@ It is good practice to add the originally digitised values and the original time
 "orig=original value|orig.time=original time"
 ```
 
-where the original value includes the original units ("F" for temperature, "in" for pressure, none for wind).
+where the original value includes the original units ("F" for temperature, "in" for pressure, none for wind direction).
 
 Here we can use the R function `paste0` to concatenate strings. We write the strings into a new column `Meta` in the data frames:
 ```{r, warning=FALSE}
@@ -205,7 +205,7 @@ Here we also rounded the results to one decimal place.
 
 The function `convert_pressure` not only performs the conversion to hPa, but also applies a correction for gravity (that is why latitude and altitude are given in the argument) and temperature (however, in this case we do not have the attached temperature of the barometer that would be required for this correction). The argument `f` gives the conversion factor from inches to mmHg.
 
-To be usable, the wind must be converted into degrees from the geographical North. For wind directions in English (16 possible directions):
+To be usable, the wind direction must be converted into degrees from the geographical North. For wind directions in English (16 possible directions):
 ```{r, warning=FALSE}
 directions <- c("N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S",
 "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW")
