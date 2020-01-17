@@ -9,7 +9,7 @@ Link
 Vbl	p
 Stat	point
 Units	hPa
-Meta	PTC=N|PGC=Y
+Meta	Observer=Parker Cleaveland|PTC=N|PGC=Y
 Year	Month	Day	Hour	Minute	Period	Value	Meta
 1816	1	1	12	9	0	994.4	orig=29.37in|orig.time=7:30AM
 1816	1	1	17	39	0	993.8	orig=29.35in|orig.time=1:00PM

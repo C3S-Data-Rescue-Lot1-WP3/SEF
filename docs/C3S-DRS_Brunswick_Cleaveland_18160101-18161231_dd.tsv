@@ -9,7 +9,7 @@ Link
 Vbl	dd
 Stat	point
 Units	degree
-Meta	
+Meta	Observer=Parker Cleaveland
 Year	Month	Day	Hour	Minute	Period	Value	Meta
 1816	1	1	12	9	0	225	orig=SW|orig.time=7:30AM
 1816	1	1	17	39	0	270	orig=W|orig.time=1:00PM

@@ -40,7 +40,7 @@ For instructions on how to install `dataresqc`, see [here](https://github.com/c3
 
 ## Excel file
 
-The Excel file ([example.xls](https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/blob/master/vignette/example.xls)) that we want to convert into SEF looks like this:
+The Excel file ([example.xls](https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/blob/master/docs/example.xls?raw=true)) that we want to convert into SEF looks like this:
 
 ```{r, echo=FALSE}
 knitr::include_graphics("example.png")
@@ -133,7 +133,13 @@ head(sefdata$ta)
 There are still two columns missing in the new data frames that we just created: hour and minute. Two of the observation times are fixed but the third is at sunset: we need first to estimate the sunset time for each day. The package `suncalc` comes in handy here:
 
 ```{r, warning=FALSE}
-sunsets <- suncalc::getSunlightTimes(as.Date(paste(mydata$Year, mydata$Month, mydata$Day, sep="-")), latitude, longitude, keep="sunset", tz="GMT")$sunset + 3600 * longitude * 12 / 180
+# First we create a vector of dates
+dates <- as.Date(paste(mydata$Year, mydata$Month, mydata$Day, sep="-"))
+# Calculate sunset times (in UTC) for each date 
+sunsets <- suncalc::getSunlightTimes(dates, latitude, longitude, 
+                                     keep="sunset", tz="GMT")$sunset
+# Convert from UTC to local time
+sunsets <- sunsets + 3600 * longitude * 12 / 180
 ```
 
 The addition converts the time from UTC to local mean solar time (i.e., the time used by the observer in 1816). The variable `sunsets` is a vector with 366 elements (one for each day of 1816) giving the local time of sunset.
@@ -154,7 +160,8 @@ We can then add two new columns for hour and minute to the data frames in the li
 for (v in names(sefdata)) {
   sefdata[[v]]$Hour <- hours
   sefdata[[v]]$Minute <- minutes
-  sefdata[[v]] <- sefdata[[v]][, c("Year", "Month", "Day", "Hour", "Minute", "Value")]
+  sefdata[[v]] <- sefdata[[v]][, c("Year", "Month", "Day", 
+                                   "Hour", "Minute", "Value")]
 }
 ```
 
@@ -182,7 +189,11 @@ original_units <- c("F", "in", "")
 obs_times <- c("7:30AM", "1:00PM", "sunset")
 names(original_units) <- names(sefdata)
 for (v in names(sefdata)) {
-  sefdata[[v]]$Meta <- paste0("orig=", sefdata[[v]]$Value, original_units[v], "|orig.time=", rep(obs_times, times=366))
+  sefdata[[v]]$Meta <- paste0("orig=", 
+                              sefdata[[v]]$Value, 
+                              original_units[v], 
+                              "|orig.time=", 
+                              rep(obs_times, times=366))
 }
 ```
 
@@ -198,7 +209,10 @@ It is recommended to convert the data into metric units. This can be done easily
 sefdata$ta$Value <- round((sefdata$ta$Value - 32) * 5 / 9, 1)
 
 # Inches to hPa
-sefdata$p$Value <- round(dataresqc::convert_pressure(sefdata$p$Value, f = 25.4, lat = latitude, alt = altitude), 1)
+sefdata$p$Value <- round(dataresqc::convert_pressure(sefdata$p$Value, 
+                                                     f = 25.4, 
+                                                     lat = latitude, 
+                                                     alt = altitude), 1)
 ```
 
 Here we also rounded the results to one decimal place.
@@ -208,7 +222,7 @@ The function `convert_pressure` not only performs the conversion to hPa, but als
 To be usable, the wind direction must be converted into degrees from the geographical North. For wind directions in English (16 possible directions):
 ```{r, warning=FALSE}
 directions <- c("N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S",
-"SSW", "SW", "WSW", "W", "WNW", "NW", "NNW")
+                "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW")
 sefdata$dd$Value <- 22.5 * (match(toupper(sefdata$dd$Value), directions) - 1)
 ```
 
@@ -227,11 +241,12 @@ for (v in names(sefdata)) {
                        nam = "Brunswick, ME",
                        lat = latitude,
                        lon = longitude,
-                       alt = 25,
+                       alt = altitude,
                        sou = "C3S-DRS",
                        units = units[v],
                        stat = "point",
-                       metaHead = ifelse(v=="p", "PTC=N|PGC=Y", ""),
+                       metaHead = paste0("Observer=Parker Cleaveland", 
+                                         ifelse(v=="p", "|PTC=N|PGC=Y", "")),
                        meta = sefdata[[v]][, 7],
                        period = 0,
                        time_offset = longitude * 12 / 180)
@@ -278,9 +293,10 @@ stat = "point"
 the statistic code: "point" means that these are instantaneous observations. Other possible values are "mean", "maximum", "minimum", "mid_range" (see SEF documentation).
 
 ```{r, eval=FALSE}
-metaHead = ifelse(v=="p", "PTC=N|PGC=Y", ""))
+metaHead = paste0("Observer=Parker Cleaveland", 
+                  ifelse(v=="p", "|PTC=N|PGC=Y", ""))
 ```
-here we define the metadata in the last field of the header: if the variable is pressure we write that the data have been corrected for gravity (`PGC=Y`) but not for temperature (`PTC=N`).
+here we define the metadata in the last field of the header: we write the observer name and if the variable is pressure we also write that the data have been corrected for gravity (`PGC=Y`) but not for temperature (`PTC=N`).
 
 ```{r, eval=FALSE}
 meta = sefdata[[v]][, 7]

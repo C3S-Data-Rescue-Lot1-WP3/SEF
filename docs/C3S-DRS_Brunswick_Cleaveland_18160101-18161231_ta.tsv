@@ -9,7 +9,7 @@ Link
 Vbl	ta
 Stat	point
 Units	C
-Meta	
+Meta	Observer=Parker Cleaveland
 Year	Month	Day	Hour	Minute	Period	Value	Meta
 1816	1	1	12	9	0	-10	orig=14F|orig.time=7:30AM
 1816	1	1	17	39	0	-1.1	orig=30F|orig.time=1:00PM
