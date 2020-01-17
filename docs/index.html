@@ -268,7 +268,7 @@ sefdata$p &lt;- data.frame(Year = rep(mydata$Year, each=3),
                          Value = c(t(mydata[,7:9])))
 
 # Create data frame for wind (under name 'w')
-sefdata$w &lt;- data.frame(Year = rep(mydata$Year, each=3),
+sefdata$dd &lt;- data.frame(Year = rep(mydata$Year, each=3),
                          Month = rep(mydata$Month, each=3),
                          Day = rep(mydata$Day, each=3),
                          Value = c(t(mydata[,10:12])))</code></pre>
@@ -339,7 +339,7 @@ sefdata$p$Value &lt;- round(dataresqc::convert_pressure(sefdata$p$Value, f = 25.
 <p>To be usable, the wind must be converted into degrees from the geographical North. For wind directions in English (16 possible directions):</p>
 <pre class="r"><code>directions &lt;- c(&quot;N&quot;, &quot;NNE&quot;, &quot;NE&quot;, &quot;ENE&quot;, &quot;E&quot;, &quot;ESE&quot;, &quot;SE&quot;, &quot;SSE&quot;, &quot;S&quot;,
 &quot;SSW&quot;, &quot;SW&quot;, &quot;WSW&quot;, &quot;W&quot;, &quot;WNW&quot;, &quot;NW&quot;, &quot;NNW&quot;)
-sefdata$w$Value &lt;- 22.5 * (match(toupper(sefdata$w$Value), directions) - 1)</code></pre>
+sefdata$dd$Value &lt;- 22.5 * (match(toupper(sefdata$dd$Value), directions) - 1)</code></pre>
 <p><br></p>
 </div>
 <div id="step-7-write-sef-files" class="section level2">
@@ -365,7 +365,7 @@ for (v in names(sefdata)) {
 }
 #&gt; [1] Data written to file D:/tutorial/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv
 #&gt; [1] Data written to file D:/tutorial/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv
-#&gt; [1] Data written to file D:/tutorial/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_w.tsv</code></pre>
+#&gt; [1] Data written to file D:/tutorial/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv</code></pre>
 <p>For clarity, it is worth going through each parameter of the function:</p>
 <pre class="r"><code>Data = sefdata[[v]][, 1:6]</code></pre>
 <p>means that we use the first 6 columns of the dataframe <code>sefdata$v</code> (where v is the variable code) to create the data table in the SEF file.</p>

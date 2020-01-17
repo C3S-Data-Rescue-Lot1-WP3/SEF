@@ -113,7 +113,7 @@ sefdata$p <- data.frame(Year = rep(mydata$Year, each=3),
                          Value = c(t(mydata[,7:9])))
 
 # Create data frame for wind (under name 'w')
-sefdata$w <- data.frame(Year = rep(mydata$Year, each=3),
+sefdata$dd <- data.frame(Year = rep(mydata$Year, each=3),
                          Month = rep(mydata$Month, each=3),
                          Day = rep(mydata$Day, each=3),
                          Value = c(t(mydata[,10:12])))
@@ -209,16 +209,12 @@ To be usable, the wind must be converted into degrees from the geographical Nort
 ```{r, warning=FALSE}
 directions <- c("N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S",
 "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW")
-sefdata$w$Value <- 22.5 * (match(toupper(sefdata$w$Value), directions) - 1)
+sefdata$dd$Value <- 22.5 * (match(toupper(sefdata$dd$Value), directions) - 1)
 ```
 
 <br>
 
 ## Step 7: Write SEF files
-
-```{r, echo=FALSE}
-setwd("D:/")
-```
 
 We can now use the function `write_sef` of the `dataresqc` package in a loop over the tree variables:
 ```{r, warning=FALSE}
@@ -302,6 +298,7 @@ time_offset = longitude * 12 / 180
 this is to convert time to UTC (assuming observations are in mean local solar time), as required in the SEF.
 
 The resulting SEF files should look like this:
+
 ```{r, echo=FALSE}
 knitr::include_graphics("sef.png")
 ```
