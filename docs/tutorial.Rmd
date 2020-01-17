@@ -36,6 +36,10 @@ This page illustrates how to create a SEF file from climate data digitized in an
 
 For instructions on how to install `dataresqc`, see [here](https://github.com/c3s-data-rescue-service/dataresqc/wiki).
 
+To load `dataresqc` from the R command line:
+```{r, warning=FALSE}
+library(dataresqc)
+```
 <br>
 
 ## Excel file
@@ -209,15 +213,15 @@ It is recommended to convert the data into metric units. This can be done easily
 sefdata$ta$Value <- round((sefdata$ta$Value - 32) * 5 / 9, 1)
 
 # Inches to hPa
-sefdata$p$Value <- round(dataresqc::convert_pressure(sefdata$p$Value, 
-                                                     f = 25.4, 
-                                                     lat = latitude, 
-                                                     alt = altitude), 1)
+sefdata$p$Value <- round(convert_pressure(sefdata$p$Value, 
+                                          f = 25.4, 
+                                          lat = latitude, 
+                                          alt = altitude), 1)
 ```
 
 Here we also rounded the results to one decimal place.
 
-The function `convert_pressure` not only performs the conversion to hPa, but also applies a correction for gravity (that is why latitude and altitude are given in the argument) and temperature (however, in this case we do not have the attached temperature of the barometer that would be required for this correction). The argument `f` gives the conversion factor from inches to mmHg.
+The function `convert_pressure` (part of the `dataresqc` package) not only performs the conversion to hPa, but also applies a correction for gravity (that is why latitude and altitude are given in the argument) and temperature (however, in this case we do not have the attached temperature of the barometer that would be required for this correction). The argument `f` gives the conversion factor from inches to mmHg.
 
 To be usable, the wind direction must be converted into degrees from the geographical North. For wind directions in English (16 possible directions):
 ```{r, warning=FALSE}
@@ -235,21 +239,21 @@ We can now use the function `write_sef` of the `dataresqc` package in a loop ove
 units <- c("C", "hPa", "degree")
 names(units) <- names(sefdata)
 for (v in names(sefdata)) {
-  dataresqc::write_sef(Data = sefdata[[v]][, 1:6],
-                       variable = v,
-                       cod = "Brunswick_Cleaveland",
-                       nam = "Brunswick, ME",
-                       lat = latitude,
-                       lon = longitude,
-                       alt = altitude,
-                       sou = "C3S-DRS",
-                       units = units[v],
-                       stat = "point",
-                       metaHead = paste0("Observer=Parker Cleaveland", 
-                                         ifelse(v=="p", "|PTC=N|PGC=Y", "")),
-                       meta = sefdata[[v]][, 7],
-                       period = 0,
-                       time_offset = longitude * 12 / 180)
+  write_sef(Data = sefdata[[v]][, 1:6],
+            variable = v,
+            cod = "Brunswick_Cleaveland",
+            nam = "Brunswick, ME",
+            lat = latitude,
+            lon = longitude,
+            alt = altitude,
+            sou = "C3S-DRS",
+            units = units[v],
+            stat = "point",
+            metaHead = paste0("Observer=Parker Cleaveland", 
+                              ifelse(v=="p", "|PTC=N|PGC=Y", "")),
+            meta = sefdata[[v]][, 7],
+            period = 0,
+            time_offset = longitude * 12 / 180)
 }
 ```
 
@@ -318,3 +322,16 @@ The resulting SEF files should look like this:
 ```{r, echo=FALSE}
 knitr::include_graphics("sef.png")
 ```
+
+<br>
+
+## Step 8: Check SEF files
+
+Finally, to be sure that the files are compatible with SEF standards, we can run the function `check_sef`:
+```{r, warning=FALSE}
+check_sef("C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv")
+check_sef("C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv")
+check_sef("C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv")
+```
+
+The warning concerns the observations made at 00:00 UTC that should be written as 24:00 UTC, but this is relevant only for daily data and can be ignored in this case.
