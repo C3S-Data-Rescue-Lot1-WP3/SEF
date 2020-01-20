@@ -32,7 +32,7 @@ knitr::include_graphics("logo.png")
 
 ## Introduction
 
-This page illustrates how to create a SEF file from climate data digitized in an Excel sheet. We will make use of the functions provided within the R package `dataresqc`. Other packages are also used (all can be installed with the command `install.packages("packagename")`).
+This page illustrates how to create a SEF file from climate data digitized in an Excel sheet. We will make use of the functions provided within the R package `dataresqc`. Other packages are also used (all can be installed with the command `install.packages("packagename")`). The code described in this page can be downloaded [here](https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/blob/master/docs/example.R).
 
 For instructions on how to install `dataresqc`, see [here](https://github.com/c3s-data-rescue-service/dataresqc/wiki).
 
