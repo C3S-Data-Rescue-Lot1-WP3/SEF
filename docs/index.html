@@ -203,7 +203,7 @@ summary {
 <p><br></p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This page illustrates how to create a SEF file from climate data digitized in an Excel sheet. We will make use of the functions provided within the R package <code>dataresqc</code>. Other packages are also used (all can be installed with the command <code>install.packages(&quot;packagename&quot;)</code>). The code described in this page can be downloaded <a href="https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/blob/master/docs/example.R">here</a>.</p>
+<p>This page illustrates how to create a SEF file from climate data digitized in an Excel sheet. We will make use of the functions provided within the R package <code>dataresqc</code> (version 1.0.1). Other packages are also used (all can be installed with the command <code>install.packages(&quot;packagename&quot;)</code>). The code described in this page can be downloaded <a href="https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/blob/master/docs/example.R">here</a>.</p>
 <p>For instructions on how to install <code>dataresqc</code>, see <a href="https://github.com/c3s-data-rescue-service/dataresqc/wiki">here</a>.</p>
 <p>To load <code>dataresqc</code> from the R command line:</p>
 <pre class="r"><code>library(dataresqc)</code></pre>
@@ -381,9 +381,9 @@ for (v in names(sefdata)) {
             period = 0,
             time_offset = longitude * 12 / 180)
 }
-#&gt; [1] Data written to file D:/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv
-#&gt; [1] Data written to file D:/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv
-#&gt; [1] Data written to file D:/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv</code></pre>
+#&gt; [1] Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv
+#&gt; [1] Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv
+#&gt; [1] Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv</code></pre>
 <p>For clarity, it is worth going through each parameter of the function:</p>
 <pre class="r"><code>Data = sefdata[[v]][, 1:6]</code></pre>
 <p>means that we use the first 6 columns of the dataframe <code>sefdata$v</code> (where v is the variable code) to create the data table in the SEF file.</p>
@@ -419,18 +419,14 @@ alt = 25</code></pre>
 <h2>Step 8: Check SEF files</h2>
 <p>Finally, to be sure that the files are compatible with SEF standards, we can run the function <code>check_sef</code>:</p>
 <pre class="r"><code>check_sef(&quot;C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv&quot;)
-#&gt; Warning: 24 is recommended instead of 0 for the Hour column
-#&gt; 0 errors and 1 warnings
+#&gt; 0 errors and 0 warnings
 #&gt; [1] TRUE
 check_sef(&quot;C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv&quot;)
-#&gt; Warning: 24 is recommended instead of 0 for the Hour column
-#&gt; 0 errors and 1 warnings
+#&gt; 0 errors and 0 warnings
 #&gt; [1] TRUE
 check_sef(&quot;C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv&quot;)
-#&gt; Warning: 24 is recommended instead of 0 for the Hour column
-#&gt; 0 errors and 1 warnings
+#&gt; 0 errors and 0 warnings
 #&gt; [1] TRUE</code></pre>
-<p>The warning concerns the observations made at 00:00 UTC that should be written as 24:00 UTC, but this is relevant only for daily data and can be ignored in this case.</p>
 </div>
 
 
