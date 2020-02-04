@@ -240,6 +240,7 @@ units <- c("C", "hPa", "degree")
 names(units) <- names(sefdata)
 for (v in names(sefdata)) {
   write_sef(Data = sefdata[[v]][, 1:6],
+            outpath = getwd(),
             variable = v,
             cod = "Brunswick_Cleaveland",
             nam = "Brunswick, ME",

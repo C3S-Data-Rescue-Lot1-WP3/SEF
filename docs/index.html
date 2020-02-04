@@ -203,7 +203,7 @@ summary {
 <p><br></p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This page illustrates how to create a SEF file from climate data digitized in an Excel sheet. We will make use of the functions provided within the R package <code>dataresqc</code> (version 1.0.1). Other packages are also used (all can be installed with the command <code>install.packages(&quot;packagename&quot;)</code>). The code described in this page can be downloaded <a href="https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/blob/master/docs/example.R">here</a>.</p>
+<p>This page illustrates how to create a SEF file from climate data digitized in an Excel sheet. We will make use of the functions provided within the R package <code>dataresqc</code> (version 1.0.2). Other packages are also used (all can be installed with the command <code>install.packages(&quot;packagename&quot;)</code>). The code described in this page can be downloaded <a href="https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/blob/master/docs/example.R">here</a>.</p>
 <p>For instructions on how to install <code>dataresqc</code>, see <a href="https://github.com/c3s-data-rescue-service/dataresqc/wiki">here</a>.</p>
 <p>To load <code>dataresqc</code> from the R command line:</p>
 <pre class="r"><code>library(dataresqc)</code></pre>
@@ -366,6 +366,7 @@ sefdata$dd$Value &lt;- 22.5 * (match(toupper(sefdata$dd$Value), directions) - 1)
 names(units) &lt;- names(sefdata)
 for (v in names(sefdata)) {
   write_sef(Data = sefdata[[v]][, 1:6],
+            outpath = getwd(),
             variable = v,
             cod = &quot;Brunswick_Cleaveland&quot;,
             nam = &quot;Brunswick, ME&quot;,
@@ -381,9 +382,9 @@ for (v in names(sefdata)) {
             period = 0,
             time_offset = longitude * 12 / 180)
 }
-#&gt; [1] Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv
-#&gt; [1] Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv
-#&gt; [1] Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv</code></pre>
+#&gt; Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv
+#&gt; Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv
+#&gt; Data written to file D:/Lavoro/Copernicus/SEF/docs/C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv</code></pre>
 <p>For clarity, it is worth going through each parameter of the function:</p>
 <pre class="r"><code>Data = sefdata[[v]][, 1:6]</code></pre>
 <p>means that we use the first 6 columns of the dataframe <code>sefdata$v</code> (where v is the variable code) to create the data table in the SEF file.</p>
