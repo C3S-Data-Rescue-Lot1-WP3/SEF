@@ -70,11 +70,9 @@ original_units <- c("F", "in", "")
 obs_times <- c("7:30AM", "1:00PM", "sunset")
 names(original_units) <- names(sefdata)
 for (v in names(sefdata)) {
-  sefdata[[v]]$Meta <- paste0("orig=",
-                              sefdata[[v]]$Value,
-                              original_units[v],
-                              "|orig.time=",
-                              rep(obs_times, times=366))
+  sefdata[[v]]$Meta <- paste0("orig=", sefdata[[v]]$Value, original_units[v],
+                              "|orig.time=", rep(obs_times, times=366),
+                              "|orig.date=", rep(dates, each=3))
 }
 
 

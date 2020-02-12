@@ -180,9 +180,9 @@ head(sefdata$ta)
 
 ## Step 5: Add Meta column
 
-It is good practice to add the originally digitised values and the original times to the last column of the SEF file. The text in this column must have the form:
+It is good practice to add the originally digitised values together with the original times and dates to the last column of the SEF file. The text in this column must have the form:
 ```
-"orig=original value|orig.time=original time"
+"orig=original value|orig.time=original time|orig.date=original date"
 ```
 
 where the original value includes the original units ("F" for temperature, "in" for pressure, none for wind direction).
@@ -193,11 +193,9 @@ original_units <- c("F", "in", "")
 obs_times <- c("7:30AM", "1:00PM", "sunset")
 names(original_units) <- names(sefdata)
 for (v in names(sefdata)) {
-  sefdata[[v]]$Meta <- paste0("orig=", 
-                              sefdata[[v]]$Value, 
-                              original_units[v], 
-                              "|orig.time=", 
-                              rep(obs_times, times=366))
+  sefdata[[v]]$Meta <- paste0("orig=", sefdata[[v]]$Value, original_units[v], 
+                              "|orig.time=", rep(obs_times, times=366),
+                              "|orig.date=", rep(dates, each=3))
 }
 ```
 
@@ -334,3 +332,5 @@ check_sef("C3S-DRS_Brunswick_Cleaveland_18160101-18161231_ta.tsv")
 check_sef("C3S-DRS_Brunswick_Cleaveland_18160101-18161231_p.tsv")
 check_sef("C3S-DRS_Brunswick_Cleaveland_18160101-18161231_dd.tsv")
 ```
+
+The three SEF files can be found [here](https://github.com/C3S-Data-Rescue-Lot1-WP3/SEF/tree/master/docs).
