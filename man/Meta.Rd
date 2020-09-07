@@ -4,7 +4,9 @@
 \name{Meta}
 \alias{Meta}
 \title{Metadata for the station of Bern}
-\format{A list of data frames (one data frame per variable)}
+\format{
+A list of data frames (one data frame per variable)
+}
 \source{
 Institute of Geography - University of Bern
 }

@@ -4,7 +4,9 @@
 \name{Variables}
 \alias{Variables}
 \title{List of standard variable codes}
-\format{A data frame with two variables}
+\format{
+A data frame with two variables
+}
 \source{
 C3S Data Rescue Service
 }
